@@ -1,8 +1,11 @@
 package com.twiscode.movie_stage1;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,12 +16,15 @@ import org.w3c.dom.Text;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-    TextView mMovieDetailTitle;
-    TextView mMovieDetailDesc;
-    TextView mMovieDetailRating;
-    TextView mMovieReleaseDate;
-    ImageView mMovieImage;
-    ImageView mBannerImage;
+    private TextView mMovieDetailTitle;
+    private TextView mMovieDetailDesc;
+    private TextView mMovieDetailRating;
+    private TextView mMovieReleaseDate;
+    private ImageView mMovieImage;
+    private ImageView mBannerImage;
+    private CollapsingToolbarLayout mCollapsingToolbar;
+    private Toolbar mToolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +38,18 @@ public class MovieDetailActivity extends AppCompatActivity {
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_movie_detail_release_date);
         mMovieImage = (ImageView) findViewById(R.id.iv_movie_detail_image);
         mBannerImage = (ImageView) findViewById(R.id.iv_image_banner);
-
+        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.movie_detail_toolbar);
+        setSupportActionBar(mToolbar);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         Intent intent = getIntent();
 
         if (intent.hasExtra("MovieItem")){
             MovieItem item = (MovieItem) intent.getSerializableExtra("MovieItem");
             mMovieDetailTitle.setText(item.getMovieTitle());
+            // mCollapsingToolbar.setTitle(item.getMovieTitle());
             mMovieDetailDesc.setText(item.getMovieDescription());
             mMovieDetailRating.setText("Rating: " + item.getMovieRating());
             mMovieReleaseDate.setText("Released: " + item.getReleaseDate());
