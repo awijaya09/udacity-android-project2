@@ -9,14 +9,16 @@ import java.io.Serializable;
 public class MovieItem implements Serializable {
 
     private String imgUrl;
+    private String backdropImgUrl;
     private String movieTitle;
     private double movieRating;
     private String movieDescription;
     private String releaseDate;
     private int movieID;
 
-    public MovieItem(String imgUrl, String title, String desc, int id, double rating, String releaseDate){
+    public MovieItem(String imgUrl, String backImg, String title, String desc, int id, double rating, String releaseDate){
         this.imgUrl = imgUrl;
+        this.backdropImgUrl = backImg;
         this.movieTitle = title;
         this.movieRating = rating;
         this.movieDescription = desc;
@@ -31,6 +33,12 @@ public class MovieItem implements Serializable {
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
+    }
+
+    public String getBackdropImgUrl() { return backdropImgUrl; }
+
+    public void setBackdropImgUrl(String backdropImgUrl) {
+        this.backdropImgUrl = backdropImgUrl;
     }
 
     public String getMovieTitle() {

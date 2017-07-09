@@ -18,6 +18,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mMovieDetailRating;
     TextView mMovieReleaseDate;
     ImageView mMovieImage;
+    ImageView mBannerImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mMovieDetailRating = (TextView) findViewById(R.id.tv_movie_detail_rating);
         mMovieReleaseDate = (TextView) findViewById(R.id.tv_movie_detail_release_date);
         mMovieImage = (ImageView) findViewById(R.id.iv_movie_detail_image);
+        mBannerImage = (ImageView) findViewById(R.id.iv_image_banner);
 
         Intent intent = getIntent();
 
@@ -41,6 +43,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             mMovieReleaseDate.setText("Released: " + item.getReleaseDate());
             setTitle(" ");
             Picasso.with(this).load(item.getImgUrl()).into(mMovieImage);
+            Picasso.with(this).load(item.getBackdropImgUrl()).into(mBannerImage);
         }else{
             Log.d("Intent description", "onCreate: No Intent found");
         }

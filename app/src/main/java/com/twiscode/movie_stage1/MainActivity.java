@@ -135,10 +135,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                             double rating = resultItem.getDouble("vote_average");
                             String releaseDate = resultItem.getString("release_date");
                             String itemDesc = resultItem.getString("overview");
+                            String backdropImgPath = resultItem.getString("backdrop_path");
 
                             String fullImgUrl = NetworkUtils.IMG_BASE_URL + imgPath;
+                            String backdropImgUrl = NetworkUtils.IMG_BASE_URL + backdropImgPath;
 
-                            MovieItem newMovie = new MovieItem(fullImgUrl, itemTitle, itemDesc, itemID, rating, releaseDate);
+                            MovieItem newMovie = new MovieItem(fullImgUrl, backdropImgUrl, itemTitle, itemDesc, itemID, rating, releaseDate);
 
                             movieLists.add(newMovie);
                         }
