@@ -1,22 +1,26 @@
 package com.twiscode.movie_stage1;
 
+import java.io.Serializable;
+
 /**
  * Created by Andree on 7/7/17.
  */
 
-public class MovieItem {
+public class MovieItem implements Serializable {
 
     private String imgUrl;
     private String movieTitle;
     private double movieRating;
     private String movieDescription;
+    private String releaseDate;
     private int movieID;
 
-    public MovieItem(String imgUrl, String title, String desc, int id, double rating){
+    public MovieItem(String imgUrl, String title, String desc, int id, double rating, String releaseDate){
         this.imgUrl = imgUrl;
         this.movieTitle = title;
         this.movieRating = rating;
         this.movieDescription = desc;
+        this.releaseDate = releaseDate;
         this.movieID = id;
 
     }
@@ -53,6 +57,11 @@ public class MovieItem {
         this.movieDescription = movieDescription;
     }
 
+    public String getReleaseDate() { return releaseDate; }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
     public int getMovieID() {
         return movieID;
     }

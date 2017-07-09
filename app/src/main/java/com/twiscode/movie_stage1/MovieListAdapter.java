@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -21,18 +23,33 @@ import java.util.zip.Inflater;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
-    public MovieItem[] movies;
-    private String[] dummyText = {"Text 1", "Text 2", "Text 3", "Text 4"};
+    private ArrayList<MovieItem> movies;
 
-    class MovieListViewHolder extends RecyclerView.ViewHolder {
+    //Add On click listener
+    final private MovieAdapterOnClickHandler mClickHandler;
+
+    interface MovieAdapterOnClickHandler{
+        void onItemClick(MovieItem item);
+    }
+
+    //constructor of the adapter
+    public MovieListAdapter(MovieAdapterOnClickHandler handler) {
+        mClickHandler = handler;
+    }
+
+    class MovieListViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener {
         public final ImageView mMovieImageView;
-        public final TextView mMovieTitle;
 
         public MovieListViewHolder (View view){
             super(view);
-
             mMovieImageView = (ImageView) view.findViewById(R.id.iv_movie_image);
-            mMovieTitle = (TextView) view.findViewById(R.id.tv_movie_title);
+            view.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            MovieItem movieItem = movies.get(getAdapterPosition());
+            mClickHandler.onItemClick(movieItem);
         }
     }
 
@@ -49,21 +66,22 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public void onBindViewHolder(MovieListViewHolder holder, int position) {
-        //MovieItem movieSingle = movies[position];
-        //String movieTitle = movieSingle.getMovieTitle();
-        String textSingle = dummyText[position];
-        holder.mMovieTitle.setText(textSingle);
+        MovieItem movieSingle = movies.get(position);
+
+        //using picasso to load image
+        Context context = holder.mMovieImageView.getContext();
+        String imageUrl = movieSingle.getImgUrl();
+        Picasso.with(context).load(imageUrl).into(holder.mMovieImageView);
 
     }
 
     @Override
     public int getItemCount() {
-//        if (null == movies) return 0;
-//        return movies.length;
-        return dummyText.length;
+        if (null == movies) return 0;
+        return movies.size();
     }
 
-    public void setMovieData(MovieItem[] movieItems){
+    public void setMovieData(ArrayList<MovieItem> movieItems){
         movies = movieItems;
         notifyDataSetChanged();
     }
