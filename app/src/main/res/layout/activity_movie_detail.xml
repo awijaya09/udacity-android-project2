@@ -44,6 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="fill_vertical"
+        android:background="@color/colorBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -59,7 +60,8 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:textSize="30sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@android:color/white"/>
 
             <TextView
                 android:id="@+id/tv_movie_detail_desc"
@@ -69,7 +71,8 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingTop="8dp"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@android:color/white"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,13 +95,15 @@
                         android:id="@+id/tv_movie_detail_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white"/>
 
                     <TextView
                         android:id="@+id/tv_movie_detail_release_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white"/>
 
                 </LinearLayout>
             </LinearLayout>

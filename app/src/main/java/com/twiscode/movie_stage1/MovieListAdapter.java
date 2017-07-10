@@ -71,7 +71,9 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         //using picasso to load image
         Context context = holder.mMovieImageView.getContext();
         String imageUrl = movieSingle.getImgUrl();
-        Picasso.with(context).load(imageUrl).into(holder.mMovieImageView);
+        Picasso.with(context)
+                .load(imageUrl)
+                .into(holder.mMovieImageView);
 
     }
 
