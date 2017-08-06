@@ -30,6 +30,10 @@ public class NetworkUtils {
 
     // Video/Trailer link
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+    final static String YOUTUBE_API_KEY = "AIzaSyB1tq0nInntUrIWFIsxPx1qPBZJ-kE3yYo";
+    final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
+    final static String MOVIEDB_VIDEOS_API = "/videos?api_key=";
+    final static String MOVIEDB_VIDEOS_LANG = "&language=en-US";
 
 
     public static URL buildUrl(String firstUrl, String apiKey, int pageNumber){
@@ -45,6 +49,21 @@ public class NetworkUtils {
 
         return url;
     }
+
+    public static URL buildVideoRequestUrl(String movieID){
+        String completeUrl = MOVIEDB_BASE_URL + movieID + MOVIEDB_VIDEOS_API + API_KEY + MOVIEDB_VIDEOS_LANG;
+        Uri builtUri = Uri.parse(completeUrl).buildUpon().build();
+
+        URL url = null;
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e){
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -103,6 +122,38 @@ public class NetworkUtils {
                 }
             }
         return movieLists;
+    }
+
+    public static ArrayList<VideoItem> getAllVideos(URL paramUrl) throws IOException {
+        VideoItem newVideo;
+        ArrayList<VideoItem> videoList = new ArrayList<VideoItem>();
+        String jsonString = NetworkUtils.getResponseFromHttpUrl(paramUrl);
+
+
+        if (null != jsonString) {
+            try {
+                JSONObject jsonObject = new JSONObject(jsonString);
+
+                String movieId = Integer.toString(jsonObject.getInt("id"));
+                JSONArray results = jsonObject.getJSONArray("results");
+
+                for(int i = 0; i < results.length(); i++) {
+                    JSONObject resultItem = results.getJSONObject(i);
+                    String youtubeKey = resultItem.getString("key");
+                    String videoId = resultItem.getString("id");
+                    String videoName = resultItem.getString("name");
+
+                    newVideo = new VideoItem(videoId, movieId, youtubeKey, videoName);
+                    videoList.add(newVideo);
+                }
+
+                return videoList;
+            } catch (final JSONException e) {
+                Log.e("JSON Error", "Json parsing error: " + e.getMessage());
+            }
+
+        }
+        return videoList;
     }
 
 }
