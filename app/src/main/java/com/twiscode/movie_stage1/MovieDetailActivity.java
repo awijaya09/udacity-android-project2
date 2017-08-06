@@ -1,7 +1,6 @@
 package com.twiscode.movie_stage1;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -11,12 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.twiscode.movie_stage1.Model.MovieItem;
+import com.twiscode.movie_stage1.Model.ReviewItem;
+import com.twiscode.movie_stage1.Model.VideoItem;
 
 import org.w3c.dom.Text;
 
@@ -32,18 +33,29 @@ public class MovieDetailActivity extends AppCompatActivity {
     @BindView(R.id.tv_movie_detail_title) TextView mMovieDetailTitle;
     @BindView(R.id.tv_movie_detail_desc) TextView mMovieDetailDesc;
     @BindView(R.id.tv_movie_detail_rating) TextView mMovieDetailRating;
+    @BindView(R.id.tv_movie_detail_total_vote) TextView mTotalVote;
+    @BindView(R.id.tv_no_reviews) TextView mNoReviews;
     @BindView(R.id.tv_movie_detail_release_date) TextView mMovieReleaseDate;
+
     @BindView(R.id.iv_movie_detail_image) ImageView mMovieImage;
     @BindView(R.id.iv_image_banner) ImageView mBannerImage;
+
     @BindView(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.movie_detail_toolbar) Toolbar mToolbar;
-    @BindView(R.id.tv_movie_detail_total_vote) TextView mTotalVote;
+
     @BindView(R.id.rv_videos) RecyclerView mRecyclerViewVideos;
-    @BindView(R.id.pb_video_loading_indicator) ProgressBar mLoadingVideos;
+    @BindView(R.id.rv_reviews) RecyclerView mRecyclerViewReviews;
+
 
     private ArrayList<VideoItem> videoItems;
+    private ArrayList<ReviewItem> reviewItems;
+
     private VideoListAdapter mVideoListAdapter;
-    private LinearLayoutManager mLinearLayoutManager;
+    private ReviewListAdapter mReviewListAdapter;
+
+    private LinearLayoutManager mVideoLinearLayoutManager;
+    private LinearLayoutManager mReviewLinearLayoutManager;
+
     private String movieId;
 
 
@@ -62,21 +74,35 @@ public class MovieDetailActivity extends AppCompatActivity {
         setUpContent();
 
         videoItems = new ArrayList<VideoItem>();
-        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        mRecyclerViewVideos.setLayoutManager(mLinearLayoutManager);
-        mRecyclerViewVideos.setHasFixedSize(true);
-        mVideoListAdapter = new VideoListAdapter();
-        mRecyclerViewVideos.setAdapter(mVideoListAdapter);
+        reviewItems = new ArrayList<ReviewItem>();
 
-        loadVideos();
+        mVideoLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mReviewLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        mRecyclerViewVideos.setLayoutManager(mVideoLinearLayoutManager);
+        mRecyclerViewVideos.setHasFixedSize(true);
+
+        mRecyclerViewReviews.setLayoutManager(mReviewLinearLayoutManager);
+        mRecyclerViewReviews.setHasFixedSize(true);
+
+        mVideoListAdapter = new VideoListAdapter(this);
+        mReviewListAdapter = new ReviewListAdapter();
+
+        mRecyclerViewVideos.setAdapter(mVideoListAdapter);
+        mRecyclerViewReviews.setAdapter(mReviewListAdapter);
+
+        loadVideosReviews();
 
     }
 
-    private void loadVideos() {
+    private void loadVideosReviews() {
 
         if (null != movieId) {
-            URL urlRequest = NetworkUtils.buildVideoRequestUrl(movieId);
-            new FetchVideos().execute(urlRequest);
+            URL videosUrlRequest = NetworkUtils.buildVideoRequestUrl(NetworkUtils.MOVIEDB_VIDEOS_API , movieId);
+            URL reviewsUrlRequest = NetworkUtils.buildVideoRequestUrl(NetworkUtils.MOVIEDB_REVIEWS_API , movieId);
+            URL urls[] = {videosUrlRequest, reviewsUrlRequest};
+            new FetchVideos().execute(urls);
+
         }
     }
 
@@ -98,6 +124,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             String totalVoteCount = String.format("%,d", item.getVoteCount());
             mTotalVote.setText(totalVoteCount + " votes");
 
+            setTitle(" ");
             Picasso.with(this).load(item.getImgUrl()).into(mMovieImage);
             Picasso.with(this).load(item.getBackdropImgUrl()).into(mBannerImage);
         }else{
@@ -106,13 +133,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
     private void showVideoLoading() {
-        mLoadingVideos.setVisibility(View.VISIBLE);
         mRecyclerViewVideos.setVisibility(View.INVISIBLE);
     }
 
+
     private void showAllVideos() {
-        mLoadingVideos.setVisibility(View.INVISIBLE);
         mRecyclerViewVideos.setVisibility(View.VISIBLE);
+    }
+
+    private void showAllReview() {
+        mRecyclerViewReviews.setVisibility(View.VISIBLE);
     }
 
     private class FetchVideos extends AsyncTask<URL, Void, String> {
@@ -128,9 +158,11 @@ public class MovieDetailActivity extends AppCompatActivity {
 
             if (urls.length == 0) { return null; }
 
-            URL paramUrl = urls[0];
+            URL trailerParamUrl = urls[0];
+            URL reviewsParamUrl = urls[1];
             try{
-                videoItems.addAll(NetworkUtils.getAllVideos(paramUrl));
+                videoItems.addAll(NetworkUtils.getAllVideos(trailerParamUrl));
+                reviewItems.addAll(NetworkUtils.getAllReviews(reviewsParamUrl));
             } catch (IOException e) {
                 Log.e("Networking Error", "doInBackground: error in getting JSON: " + e.getMessage());
             }
@@ -146,6 +178,13 @@ public class MovieDetailActivity extends AppCompatActivity {
                 showAllVideos();
             } else {
                 Log.d("Video load error", "onPostExecute: No video found");;
+            }
+
+            if (reviewItems != null && !reviewItems.isEmpty()) {
+                mReviewListAdapter.setReviewsData(reviewItems);
+                showAllReview();
+            } else {
+                mNoReviews.setVisibility(View.VISIBLE);
             }
 
         }

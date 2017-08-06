@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -16,11 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.twiscode.movie_stage1.Model.MovieItem;
 
 import java.io.IOException;
 import java.net.URL;
@@ -58,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         adapter = new MovieListAdapter(this);
         mRecyclerView.setAdapter(adapter);
 
+        RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
+        if(animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
         pageID = 0;
 
         loadMoviesData(pageID);

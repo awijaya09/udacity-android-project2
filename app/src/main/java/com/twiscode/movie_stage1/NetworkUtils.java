@@ -3,6 +3,10 @@ package com.twiscode.movie_stage1;
 import android.net.Uri;
 import android.util.Log;
 
+import com.twiscode.movie_stage1.Model.MovieItem;
+import com.twiscode.movie_stage1.Model.ReviewItem;
+import com.twiscode.movie_stage1.Model.VideoItem;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +37,7 @@ public class NetworkUtils {
     final static String YOUTUBE_API_KEY = "AIzaSyB1tq0nInntUrIWFIsxPx1qPBZJ-kE3yYo";
     final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String MOVIEDB_VIDEOS_API = "/videos?api_key=";
+    final static String MOVIEDB_REVIEWS_API = "/reviews?api_key=";
     final static String MOVIEDB_VIDEOS_LANG = "&language=en-US";
 
 
@@ -50,8 +55,8 @@ public class NetworkUtils {
         return url;
     }
 
-    public static URL buildVideoRequestUrl(String movieID){
-        String completeUrl = MOVIEDB_BASE_URL + movieID + MOVIEDB_VIDEOS_API + API_KEY + MOVIEDB_VIDEOS_LANG;
+    public static URL buildVideoRequestUrl(String apiRequestType, String movieID){
+        String completeUrl = MOVIEDB_BASE_URL + movieID + apiRequestType + API_KEY + MOVIEDB_VIDEOS_LANG;
         Uri builtUri = Uri.parse(completeUrl).buildUpon().build();
 
         URL url = null;
@@ -154,6 +159,39 @@ public class NetworkUtils {
 
         }
         return videoList;
+    }
+
+    public static ArrayList<ReviewItem> getAllReviews(URL paramUrl) throws IOException {
+        ReviewItem newReview;
+        ArrayList<ReviewItem> reviewList = new ArrayList<ReviewItem>();
+        String jsonString = NetworkUtils.getResponseFromHttpUrl(paramUrl);
+
+
+        if (null != jsonString) {
+            try {
+                JSONObject jsonObject = new JSONObject(jsonString);
+
+                String movieId = Integer.toString(jsonObject.getInt("id"));
+                JSONArray results = jsonObject.getJSONArray("results");
+
+                for(int i = 0; i < results.length(); i++) {
+                    JSONObject resultItem = results.getJSONObject(i);
+                    String reviewId = resultItem.getString("id");
+                    String reviewContent = resultItem.getString("content");
+                    String reviewAuthor = resultItem.getString("author");
+
+                    Log.d("Review author", "getAllReviews: Review Author:" + reviewAuthor);
+                    newReview = new ReviewItem(movieId, reviewId, reviewContent, reviewAuthor);
+                    reviewList.add(newReview);
+                }
+
+                return reviewList;
+            } catch (final JSONException e) {
+                Log.e("JSON Error", "Json parsing error: " + e.getMessage());
+            }
+
+        }
+        return reviewList;
     }
 
 }

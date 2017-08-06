@@ -2,5 +2,7 @@
     <string name="app_name">Movie Stage 2</string>
     <string name="network_error">Sorry, an error just occured. Please try again!</string>
     <string name="movie_image">Movie Image</string>
-    <string name="movie_videos_title">Video(s)</string>
+    <string name="movie_videos_title">Trailer(s)</string>
+    <string name="movie_reviews_title">Review(s)</string>
+    <string name="movie_reviews_no_review">Sorry, There are no reviews available</string>
 </resources>

@@ -1,21 +1,16 @@
 package com.twiscode.movie_stage1;
 
 import android.content.Context;
-import android.graphics.Movie;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
+import com.twiscode.movie_stage1.Model.MovieItem;
 
 import java.util.ArrayList;
-import java.util.zip.Inflater;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,7 +35,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         mClickHandler = handler;
     }
 
-    class MovieListViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener {
+    class MovieListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.iv_movie_image) ImageView mMovieImageView;
         public MovieListViewHolder (View view){
             super(view);

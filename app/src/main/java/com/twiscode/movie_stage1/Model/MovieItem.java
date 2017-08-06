@@ -1,4 +1,4 @@
-package com.twiscode.movie_stage1;
+package com.twiscode.movie_stage1.Model;
 
 import java.io.Serializable;
 
