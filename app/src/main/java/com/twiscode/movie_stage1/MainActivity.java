@@ -26,11 +26,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieAdapterOnClickHandler {
 
     private MovieListAdapter adapter;
-    private ProgressBar mLoadingIndicator;
-    private TextView mErrorText;
     private RecyclerView mRecyclerView;
     private ArrayList<MovieItem> movieLists;
     private int currentPage = 1;
@@ -39,17 +40,18 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private boolean loadingNewItem = true;
     private int pageID;
 
+    @BindView(R.id.pb_loading_indicator) ProgressBar mLoadingIndicator;
+    @BindView(R.id.tv_error_message) TextView mErrorText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
-        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
-        mErrorText = (TextView) findViewById(R.id.tv_error_message);
 
-        movieLists = new ArrayList<MovieItem>();
         // Setting the recycler view
+        movieLists = new ArrayList<MovieItem>();
         mGridLayoutManager = new GridLayoutManager(this, getNoOfColumns());
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         } else {
             URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_UPCOMING_URL, NetworkUtils.API_KEY, currentPage);
             new FetchMovies().execute(urlRequest);
+            setTitle("Upcoming Movies");
         }
 
     }

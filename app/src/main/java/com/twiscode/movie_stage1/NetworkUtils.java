@@ -28,6 +28,9 @@ public class NetworkUtils {
     final static String API_KEY = "48de4eca0f403aabc3c290ae441792a1";
     final static String IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
+    // Video/Trailer link
+    final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
+
 
     public static URL buildUrl(String firstUrl, String apiKey, int pageNumber){
         String completeUrl = firstUrl + apiKey + MOVIEDB_QUERY_PAGE + pageNumber;
@@ -84,11 +87,11 @@ public class NetworkUtils {
                         String releaseDate = resultItem.getString("release_date");
                         String itemDesc = resultItem.getString("overview");
                         String backdropImgPath = resultItem.getString("backdrop_path");
-
+                        int voteCount = resultItem.getInt("vote_count");
                         String fullImgUrl = NetworkUtils.IMG_BASE_URL + imgPath;
                         String backdropImgUrl = NetworkUtils.IMG_BASE_URL + backdropImgPath;
 
-                        newMovie = new MovieItem(fullImgUrl, backdropImgUrl, itemTitle, itemDesc, itemID, rating, releaseDate);
+                        newMovie = new MovieItem(fullImgUrl, backdropImgUrl, itemTitle, itemDesc, itemID, rating, releaseDate, voteCount);
 
                         movieLists.add(newMovie);
 

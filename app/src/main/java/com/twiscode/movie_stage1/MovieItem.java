@@ -14,9 +14,10 @@ public class MovieItem implements Serializable {
     private double movieRating;
     private String movieDescription;
     private String releaseDate;
+    private int voteCount;
     private int movieID;
 
-    public MovieItem(String imgUrl, String backImg, String title, String desc, int id, double rating, String releaseDate){
+    public MovieItem(String imgUrl, String backImg, String title, String desc, int id, double rating, String releaseDate, int voteCount){
         this.imgUrl = imgUrl;
         this.backdropImgUrl = backImg;
         this.movieTitle = title;
@@ -24,8 +25,12 @@ public class MovieItem implements Serializable {
         this.movieDescription = desc;
         this.releaseDate = releaseDate;
         this.movieID = id;
+        this.voteCount = voteCount;
 
     }
+    public int getVoteCount() { return voteCount; }
+
+    public void setVoteCount(int voteCount) { this.voteCount = voteCount; }
 
     public String getImgUrl() {
         return imgUrl;

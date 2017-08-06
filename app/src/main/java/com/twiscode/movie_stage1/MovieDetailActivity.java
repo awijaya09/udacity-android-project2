@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,16 +15,21 @@ import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDetailActivity extends AppCompatActivity {
 
-    private TextView mMovieDetailTitle;
-    private TextView mMovieDetailDesc;
-    private TextView mMovieDetailRating;
-    private TextView mMovieReleaseDate;
-    private ImageView mMovieImage;
-    private ImageView mBannerImage;
-    private CollapsingToolbarLayout mCollapsingToolbar;
-    private Toolbar mToolbar;
+    @BindView(R.id.tv_movie_detail_title) TextView mMovieDetailTitle;
+    @BindView(R.id.tv_movie_detail_desc) TextView mMovieDetailDesc;
+    @BindView(R.id.tv_movie_detail_rating) TextView mMovieDetailRating;
+    @BindView(R.id.tv_movie_detail_release_date) TextView mMovieReleaseDate;
+    @BindView(R.id.iv_movie_detail_image) ImageView mMovieImage;
+    @BindView(R.id.iv_image_banner) ImageView mBannerImage;
+    @BindView(R.id.collapsing_toolbar)
+    net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.movie_detail_toolbar) Toolbar mToolbar;
+    @BindView(R.id.tv_movie_detail_total_vote) TextView mTotalVote;
 
 
     @Override
@@ -32,14 +38,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
 
         // Initialize
-        mMovieDetailTitle = (TextView) findViewById(R.id.tv_movie_detail_title);
-        mMovieDetailDesc = (TextView) findViewById(R.id.tv_movie_detail_desc);
-        mMovieDetailRating = (TextView) findViewById(R.id.tv_movie_detail_rating);
-        mMovieReleaseDate = (TextView) findViewById(R.id.tv_movie_detail_release_date);
-        mMovieImage = (ImageView) findViewById(R.id.iv_movie_detail_image);
-        mBannerImage = (ImageView) findViewById(R.id.iv_image_banner);
-        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        mToolbar = (Toolbar) findViewById(R.id.movie_detail_toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -49,11 +48,17 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (intent.hasExtra("MovieItem")){
             MovieItem item = (MovieItem) intent.getSerializableExtra("MovieItem");
             mMovieDetailTitle.setText(item.getMovieTitle());
-            // mCollapsingToolbar.setTitle(item.getMovieTitle());
             mMovieDetailDesc.setText(item.getMovieDescription());
-            mMovieDetailRating.setText("Rating: " + item.getMovieRating());
-            mMovieReleaseDate.setText("Released: " + item.getReleaseDate());
-            setTitle(" ");
+            mMovieDetailRating.setText(item.getMovieRating() + " /10");
+
+            // Get release date in good string
+            String date = Helper.convertStringToDate(item.getReleaseDate());
+            mMovieReleaseDate.setText(date);
+
+            // Put thousand separator on the vote count
+            String totalVoteCount = String.format("%,d", item.getVoteCount());
+            mTotalVote.setText(totalVoteCount + " votes");
+
             Picasso.with(this).load(item.getImgUrl()).into(mMovieImage);
             Picasso.with(this).load(item.getBackdropImgUrl()).into(mBannerImage);
         }else{

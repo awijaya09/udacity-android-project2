@@ -17,6 +17,9 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by Andree on 7/6/17.
  */
@@ -38,11 +41,10 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     }
 
     class MovieListViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener {
-        public final ImageView mMovieImageView;
-
+        @BindView(R.id.iv_movie_image) ImageView mMovieImageView;
         public MovieListViewHolder (View view){
             super(view);
-            mMovieImageView = (ImageView) view.findViewById(R.id.iv_movie_image);
+            ButterKnife.bind(this, view);
             view.setOnClickListener(this);
         }
 
