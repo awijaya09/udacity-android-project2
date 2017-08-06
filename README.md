@@ -11,11 +11,11 @@ To get started, you need the following :
 
 ### Installing
 The project can run on virtual machine or on a real phone.
-Before running the project, make sure to input your moviedb API KEY to NetworkUtils File
+Before running the project, make sure to input your MovieDB API KEY and Youtube API Key to NetworkUtils File
 
 ### Frameworks Used
 1. Picasso - Async Image download
 1. ButterKnife - View Injection
 
-##Authors
+## Authors
 **Andree Wijaya**
