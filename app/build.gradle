@@ -34,5 +34,6 @@ dependencies {
     compile 'com.android.support:design:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'net.opacapp:multiline-collapsingtoolbar:1.4.0'
+    compile 'com.jakewharton:butterknife:8.8.0'
     testCompile 'junit:junit:4.12'
 }

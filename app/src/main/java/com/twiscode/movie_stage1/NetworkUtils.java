@@ -25,7 +25,7 @@ public class NetworkUtils {
     final static String MOVIEDB_TOPRATED_URL = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
     final static String MOVIEDB_UPCOMING_URL = "https://api.themoviedb.org/3/movie/upcoming?api_key=";
     final static String MOVIEDB_QUERY_PAGE = "&page=";
-    final static String API_KEY = "<Enter your API KEY here>";
+    final static String API_KEY = "48de4eca0f403aabc3c290ae441792a1";
     final static String IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 
