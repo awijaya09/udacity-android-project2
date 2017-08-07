@@ -1,6 +1,7 @@
 package com.twiscode.movie_stage1;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.twiscode.movie_stage1.Model.MovieContract;
 import com.twiscode.movie_stage1.Model.MovieItem;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import butterknife.ButterKnife;
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
     private ArrayList<MovieItem> movies;
+    private Cursor mCursor;
 
     //Add On click listener
     final private MovieAdapterOnClickHandler mClickHandler;
@@ -63,7 +66,12 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public void onBindViewHolder(MovieListViewHolder holder, int position) {
-        MovieItem movieSingle = movies.get(position);
+        MovieItem movieSingle = null;
+        if (null != mCursor) {
+            movieSingle = getDataFromCursor(position);
+        } else {
+            movieSingle = movies.get(position);
+        }
 
         //using picasso to load image
         Context context = holder.mMovieImageView.getContext();
@@ -74,14 +82,56 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     }
 
+    private MovieItem getDataFromCursor(int position) {
+        int movieIDIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID);
+        int titleIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
+        int descriptionIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_DESCRIPTION);
+        int ratingIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_RATING);
+        int voteIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_COUNT);
+        int imgUrlIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMG_URL);
+        int backImgUrlIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_BACKDROP_URL);
+        int releaseDateIndex = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
+
+        mCursor.moveToPosition(position);
+
+        int movieID = mCursor.getInt(movieIDIndex);
+        String movieTitle = mCursor.getString(titleIndex);
+        String movieDes = mCursor.getString(descriptionIndex);
+        Double movieRating = mCursor.getDouble(ratingIndex);
+        int movieVote = mCursor.getInt(voteIndex);
+        String movieImgUrl = mCursor.getString(imgUrlIndex);
+        String backImgUrl = mCursor.getString(backImgUrlIndex);
+        String releaseDate = mCursor.getString(releaseDateIndex);
+
+        MovieItem movieItem = new MovieItem(movieImgUrl, backImgUrl, movieTitle, movieDes, movieID, movieRating, releaseDate, movieVote);
+
+        return movieItem;
+    }
+
     @Override
     public int getItemCount() {
         if (null == movies) return 0;
         return movies.size();
     }
 
-    public void setMovieData(ArrayList<MovieItem> movieItems){
+    public void setMovieData(ArrayList<MovieItem> movieItems, Cursor cursor){
         movies = movieItems;
+        mCursor = cursor;
         notifyDataSetChanged();
+    }
+
+    public Cursor swapCursor(Cursor c) {
+        // check if this cursor is the same as the previous cursor (mCursor)
+        if (mCursor == c) {
+            return null; // bc nothing has changed
+        }
+        Cursor temp = mCursor;
+        this.mCursor = c; // new cursor value assigned
+
+        //check if this is a valid cursor, then update the cursor
+        if (c != null) {
+            this.notifyDataSetChanged();
+        }
+        return temp;
     }
 }

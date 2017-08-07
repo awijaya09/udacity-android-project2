@@ -11,16 +11,20 @@
             <item
                 android:id="@+id/popular"
                 android:orderInCategory="1"
-                android:title="Popular Movies"></item>
+                android:title="@string/menu_popular"></item>
 
             <item
                 android:id="@+id/top_rated"
                 android:orderInCategory="2"
-                android:title="Top Rated Movies"></item>
+                android:title="@string/menu_top_rated"></item>
             <item
                 android:id="@+id/upcoming"
                 android:orderInCategory="3"
-                android:title="Upcoming Movies"></item>
+                android:title="@string/menu_upcoming"></item>
+            <item
+                android:id="@+id/favourite"
+                android:orderInCategory="4"
+                android:title="@string/menu_fave"></item>
         </menu>
     </item>
 

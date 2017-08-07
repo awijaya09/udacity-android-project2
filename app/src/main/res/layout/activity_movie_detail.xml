@@ -224,5 +224,5 @@
         app:elevation="6dp"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
-        android:onClick="onFaveButtonClick"/>
+        />
 </android.support.design.widget.CoordinatorLayout>

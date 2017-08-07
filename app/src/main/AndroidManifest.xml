@@ -26,6 +26,12 @@
                 android:value=".MainActivity">
             </meta-data>
         </activity>
+        <provider
+            android:authorities="com.twiscode.movie_stage1.movies"
+            android:name=".Model.MovieContentProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:label="@string/content_provider_label" />
     </application>
 
 </manifest>

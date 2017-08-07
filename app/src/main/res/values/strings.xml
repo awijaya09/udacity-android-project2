@@ -5,4 +5,9 @@
     <string name="movie_videos_title">Trailer(s)</string>
     <string name="movie_reviews_title">Review(s)</string>
     <string name="movie_reviews_no_review">Sorry, There are no reviews available</string>
+    <string name="content_provider_label">MovieItemProvider</string>
+    <string name="menu_upcoming">Upcoming Movies</string>
+    <string name="menu_top_rated">Top Rated Movies</string>
+    <string name="menu_popular">Popular Movies</string>
+    <string name="menu_fave">Favourite Movies</string>
 </resources>

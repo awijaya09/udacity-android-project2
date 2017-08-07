@@ -109,6 +109,14 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
         getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
         loadVideosReviews();
 
+        mFloatingButton.setImageResource(R.drawable.ic_action_add);
+        mFloatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onFaveButtonClick(view);
+            }
+        });
+
     }
 
     private void loadVideosReviews() {
@@ -149,8 +157,10 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     }
 
     public void onFaveButtonClick(View view) {
+        Log.e("Error on click", "onFaveButtonClick: Error in content values");
 
-        if (null != movieItem && mMovieData == null) {
+        if (null != movieItem && mMovieData != null) {
+            Log.e("Error on data check", "onFaveButtonClick: Error in content values");
             ContentValues contentValues = new ContentValues();
             contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, movieItem.getMovieID());
             contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieItem.getMovieTitle());
@@ -276,6 +286,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         if (null != mMovieData) {
+            mMovieData = data;
             mFloatingButton.setImageResource(R.drawable.checked);
         }
 
