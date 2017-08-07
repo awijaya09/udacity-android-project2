@@ -67,7 +67,7 @@ public class MovieContentProvider extends ContentProvider {
                 break;
 
             case MOVIE_ID:
-                queryBuilder.appendWhere(MovieContract.MovieEntry._ID + " = " + uri.getLastPathSegment());
+                queryBuilder.appendWhere(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = " + uri.getLastPathSegment());
                 cursor = queryBuilder.query(db,
                         projection,
                         selection,
@@ -143,7 +143,7 @@ public class MovieContentProvider extends ContentProvider {
 
             case MOVIE_ID:
                 String movieIdString = uri.getLastPathSegment();
-                String whereClause = MovieContract.MovieEntry._ID + " = " + movieIdString;
+                String whereClause = MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = " + movieIdString;
 
                 if(!TextUtils.isEmpty(s)) {
                     whereClause += " AND " + s;

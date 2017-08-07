@@ -12,7 +12,7 @@ import android.graphics.Movie;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "movieList.db";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     // Constructor
     MovieDbHelper(Context context) {
@@ -28,7 +28,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieContract.MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MovieContract.MovieEntry.COLUMN_DESCRIPTION + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_IMG_URL + " TEXT NOT NULL, " +
-                MovieContract.MovieEntry.COLUMN_BACKDROP_URL + " TEXT NOT NULL)";
+                MovieContract.MovieEntry.COLUMN_BACKDROP_URL + " TEXT NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_MOVIE_RATING + " DOUBLE NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL)";
 
         sqLiteDatabase.execSQL(CREATE_TABLE);
     }

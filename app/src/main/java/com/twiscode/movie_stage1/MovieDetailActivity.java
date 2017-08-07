@@ -1,8 +1,15 @@
 package com.twiscode.movie_stage1;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,8 +20,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+import com.twiscode.movie_stage1.Model.MovieContract;
 import com.twiscode.movie_stage1.Model.MovieItem;
 import com.twiscode.movie_stage1.Model.ReviewItem;
 import com.twiscode.movie_stage1.Model.VideoItem;
@@ -28,7 +37,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     @BindView(R.id.tv_movie_detail_title) TextView mMovieDetailTitle;
     @BindView(R.id.tv_movie_detail_desc) TextView mMovieDetailDesc;
@@ -46,6 +55,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     @BindView(R.id.rv_videos) RecyclerView mRecyclerViewVideos;
     @BindView(R.id.rv_reviews) RecyclerView mRecyclerViewReviews;
 
+    @BindView(R.id.fb_add_button) FloatingActionButton mFloatingButton;
+
 
     private ArrayList<VideoItem> videoItems;
     private ArrayList<ReviewItem> reviewItems;
@@ -57,6 +68,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     private LinearLayoutManager mReviewLinearLayoutManager;
 
     private String movieId;
+    private MovieItem movieItem;
+    private Cursor mMovieData;
+    private static final int TASK_LOADER_ID = 0;
 
 
     @Override
@@ -71,6 +85,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        //get the movie item object from intent
         setUpContent();
 
         videoItems = new ArrayList<VideoItem>();
@@ -91,6 +106,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mRecyclerViewVideos.setAdapter(mVideoListAdapter);
         mRecyclerViewReviews.setAdapter(mReviewListAdapter);
 
+        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
         loadVideosReviews();
 
     }
@@ -110,25 +126,49 @@ public class MovieDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if (intent.hasExtra("MovieItem")){
-            MovieItem item = (MovieItem) intent.getSerializableExtra("MovieItem");
-            movieId = Integer.toString(item.getMovieID());
-            mMovieDetailTitle.setText(item.getMovieTitle());
-            mMovieDetailDesc.setText(item.getMovieDescription());
-            mMovieDetailRating.setText(item.getMovieRating() + " /10");
+            movieItem = (MovieItem) intent.getSerializableExtra("MovieItem");
+            movieId = Integer.toString(movieItem.getMovieID());
+            mMovieDetailTitle.setText(movieItem.getMovieTitle());
+            mMovieDetailDesc.setText(movieItem.getMovieDescription());
+            mMovieDetailRating.setText(movieItem.getMovieRating() + " /10");
 
             // Get release date in good string
-            String date = Helper.convertStringToDate(item.getReleaseDate());
+            String date = Helper.convertStringToDate(movieItem.getReleaseDate());
             mMovieReleaseDate.setText(date);
 
             // Put thousand separator on the vote count
-            String totalVoteCount = String.format("%,d", item.getVoteCount());
+            String totalVoteCount = String.format("%,d", movieItem.getVoteCount());
             mTotalVote.setText(totalVoteCount + " votes");
 
             setTitle(" ");
-            Picasso.with(this).load(item.getImgUrl()).into(mMovieImage);
-            Picasso.with(this).load(item.getBackdropImgUrl()).into(mBannerImage);
-        }else{
+            Picasso.with(this).load(movieItem.getImgUrl()).into(mMovieImage);
+            Picasso.with(this).load(movieItem.getBackdropImgUrl()).into(mBannerImage);
+        } else {
             Log.d("Intent description", "onCreate: No Intent found");
+        }
+    }
+
+    public void onFaveButtonClick(View view) {
+
+        if (null != movieItem && mMovieData == null) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, movieItem.getMovieID());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieItem.getMovieTitle());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movieItem.getMovieDescription());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieItem.getReleaseDate());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_IMG_URL, movieItem.getImgUrl());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_URL, movieItem.getBackdropImgUrl());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RATING, movieItem.getMovieRating());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, movieItem.getVoteCount());
+
+            Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+
+            if ( uri != null ){
+                Toast.makeText(getBaseContext(), "Movie has been added to your favourite list", Toast.LENGTH_SHORT).show();
+                mFloatingButton.setImageResource(R.drawable.checked);
+            } else {
+                Toast.makeText(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -144,6 +184,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     private void showAllReview() {
         mRecyclerViewReviews.setVisibility(View.VISIBLE);
     }
+
+    // Loader methods implementation
+
 
     private class FetchVideos extends AsyncTask<URL, Void, String> {
 
@@ -188,5 +231,58 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    // Loader Manager
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new AsyncTaskLoader<Cursor>(this) {
+
+            @Override
+            protected void onStartLoading() {
+                if (mMovieData != null) {
+                    deliverResult(mMovieData);
+                } else {
+                    forceLoad();
+                }
+            }
+
+            @Override
+            public Cursor loadInBackground() {
+                try {
+                    if (null != movieId) {
+                        return getContentResolver().query(MovieContract.MovieEntry.contentItemUri(movieId), null, null, null, null);
+                    } else {
+                        return null;
+                    }
+                } catch (Exception e) {
+                    Log.e("Loader Manager Failed", "loadInBackground: Failed to load data" );
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public void deliverResult(Cursor data) {
+                mMovieData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (null != mMovieData) {
+            mFloatingButton.setImageResource(R.drawable.checked);
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mMovieData = null;
     }
 }
