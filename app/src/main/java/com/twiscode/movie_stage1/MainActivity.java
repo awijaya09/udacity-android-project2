@@ -34,9 +34,9 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
+    private final static String MOVIE_CURRENT_PAGE = "currentPage";
     private final static String MOVIE_ITEMS_LIST = "movieItems";
     private MovieListAdapter adapter;
-    private RecyclerView mRecyclerView;
     private ArrayList<MovieItem> movieLists;
     private int currentPage = 1;
     private GridLayoutManager mGridLayoutManager;
@@ -48,41 +48,51 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @BindView(R.id.pb_loading_indicator) ProgressBar mLoadingIndicator;
     @BindView(R.id.tv_error_message) TextView mErrorText;
-    @BindView(R.id.swipe_refresh)
-    SwipeRefreshLayout mRefreshLayout;
+    @BindView(R.id.swipe_refresh) SwipeRefreshLayout mRefreshLayout;
+    @BindView(R.id.rv_main) RecyclerView mRecyclerView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        mRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
-
+        setUpRecyclerViews();
         // Setting the recycler view
+
         movieLists = new ArrayList<MovieItem>();
+        pageID = 0;
+        addPagination();
+        currentPage = 1;
+        if (null != savedInstanceState) {
+            movieLists = savedInstanceState.getParcelableArrayList(MOVIE_ITEMS_LIST);
+            adapter.setMovieData(movieLists, null);
+            currentPage = savedInstanceState.getInt(MOVIE_CURRENT_PAGE);
+            currentPage += 1;
+        } else {
+            loadMoviesData(pageID);
+        }
+
+
+
+    }
+
+    private void setUpRecyclerViews() {
+
         mGridLayoutManager = new GridLayoutManager(this, getNoOfColumns());
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         adapter = new MovieListAdapter(this);
         mRecyclerView.setAdapter(adapter);
 
-        pageID = 0;
-        addPagination();
-
-        if (null != savedInstanceState) {
-            movieLists = savedInstanceState.getParcelableArrayList(MOVIE_ITEMS_LIST);
-            adapter.setMovieData(movieLists, null);
-
-        } else {
-            loadMoviesData(pageID);
-        }
-
-
-        // Setting refresh layout
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                loadMoviesData(pageID);
+                if (pageID == R.id.favourite){
+                    refreshLoader();
+                } else {
+                    loadMoviesData(pageID);
+                }
             }
         });
 
@@ -92,21 +102,25 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         }
     }
 
+    private void refreshLoader(){
+        getSupportLoaderManager().restartLoader(TASK_LOADER_ID, null, this);
+    }
+
     private void loadMoviesData(int movieType){
         showLoading();
         if (movieType == R.id.popular) {
-            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_POPULAR_URL, NetworkUtils.API_KEY, currentPage);
+            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_POPULAR_URL, NetworkUtils.MOVIEDB_API_KEY, currentPage);
             new FetchMovies().execute(urlRequest);
             setTitle("Popular Movies");
         } else if (movieType == R.id.top_rated) {
-            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_TOPRATED_URL, NetworkUtils.API_KEY, currentPage);
+            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_TOPRATED_URL, NetworkUtils.MOVIEDB_API_KEY, currentPage);
             new FetchMovies().execute(urlRequest);
             setTitle("Top Rated Movies");
         } else if (movieType == R.id.favourite){
             getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
             setTitle("Favourite Movies");
         } else {
-            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_UPCOMING_URL, NetworkUtils.API_KEY, currentPage);
+            URL urlRequest = NetworkUtils.buildUrl(NetworkUtils.MOVIEDB_UPCOMING_URL, NetworkUtils.MOVIEDB_API_KEY, currentPage);
             new FetchMovies().execute(urlRequest);
             setTitle("Upcoming Movies");
         }
@@ -184,9 +198,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
                 showLoading();
-
         }
 
         @Override
@@ -195,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             if (urls.length == 0) { return null; }
 
             URL paramUrl = urls[0];
+
             try{
                 movieLists.addAll(NetworkUtils.getMovieData(paramUrl));
             } catch (IOException e) {
@@ -208,10 +221,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             if (movieLists != null && !movieLists.isEmpty()){
-                showAllMovies();
+                adapter.setMovieData(movieLists, null);
                 currentPage += 1;
                 loadingNewItem = true;
-                adapter.setMovieData(movieLists, null);
+                showAllMovies();
                 mRefreshLayout.setRefreshing(false);
             } else {
                 showErrorMessage();
@@ -225,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(MOVIE_ITEMS_LIST, movieLists);
-
+        outState.putInt(MOVIE_CURRENT_PAGE, currentPage);
     }
 
     @Override
@@ -308,14 +321,19 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if (null != mMovieData) {
+        if (null != data) {
+            mMovieData = data;
             adapter.swapCursor(data);
+
         }
+        mRefreshLayout.setRefreshing(false);
+        showAllMovies();
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-       adapter.swapCursor(null);
+        adapter.swapCursor(null);
+        mRefreshLayout.setRefreshing(false);
     }
 }

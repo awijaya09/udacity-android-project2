@@ -11,5 +11,5 @@
     <string name="menu_popular">Popular Movies</string>
     <string name="menu_fave">Favourite Movies</string>
     <string name="youtube_api_key">Enter your Youtube API Key here</string>
-    <string name="movieDB_api_key">Enter your MovieDB API Key Here</string>
+    <string name="movieDB_api_key">48de4eca0f403aabc3c290ae441792a1</string>
 </resources>

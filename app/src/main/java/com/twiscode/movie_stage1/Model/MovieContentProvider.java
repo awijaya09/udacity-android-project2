@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * Created by Andree on 8/7/17.
@@ -67,7 +68,9 @@ public class MovieContentProvider extends ContentProvider {
                 break;
 
             case MOVIE_ID:
+                Log.d("Query item", "query: path to id " + uri.getLastPathSegment());
                 queryBuilder.appendWhere(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID + " = " + uri.getLastPathSegment());
+
                 cursor = queryBuilder.query(db,
                         projection,
                         selection,
@@ -82,7 +85,9 @@ public class MovieContentProvider extends ContentProvider {
         }
 
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
-
+        int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
+        String movieTitle = cursor.getString(titleIndex);
+        Log.d("Query item", "query: " + movieTitle);
         return cursor;
     }
 

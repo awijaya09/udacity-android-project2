@@ -71,6 +71,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     private MovieItem movieItem;
     private Cursor mMovieData;
     private static final int TASK_LOADER_ID = 0;
+    private static final String MOVIE_ITEM = "movieItem";
 
 
     @Override
@@ -85,6 +86,9 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        if (null != savedInstanceState) {
+            movieItem = savedInstanceState.getParcelable(MOVIE_ITEM);
+        }
         //get the movie item object from intent
         setUpContent();
 
@@ -106,10 +110,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
         mRecyclerViewVideos.setAdapter(mVideoListAdapter);
         mRecyclerViewReviews.setAdapter(mReviewListAdapter);
 
-        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
-        loadVideosReviews();
 
-        mFloatingButton.setImageResource(R.drawable.ic_action_add);
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,6 +119,29 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
         });
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Activity Track", "onStart: activity called");
+        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
+        loadVideosReviews();
+        checkFaveMovie();
+    }
+
+    private void checkFaveMovie() {
+        // 1. Check if movie is saved in SQLite
+        // 2. If exists, make the button checked
+        // 3. Else make it add button
+        if (mMovieData == null) {
+            Log.d("Activity Track", "onStart: movie data null");
+            mFloatingButton.setImageResource(R.drawable.ic_action_add);
+        } else {
+            mFloatingButton.setImageResource(R.drawable.checked);
+        }
+
+    }
+
 
     private void loadVideosReviews() {
 
@@ -131,10 +155,13 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     }
 
     private void setUpContent() {
-        Intent intent = getIntent();
 
-        if (intent.hasExtra("MovieItem")){
-            movieItem = (MovieItem) intent.getParcelableExtra("MovieItem");
+        if (null == movieItem){
+            Intent intent = getIntent();
+            if (intent.hasExtra("MovieItem")){
+                movieItem = (MovieItem) intent.getParcelableExtra("MovieItem");
+            }
+        }
             movieId = Integer.toString(movieItem.getMovieID());
             mMovieDetailTitle.setText(movieItem.getMovieTitle());
             mMovieDetailDesc.setText(movieItem.getMovieDescription());
@@ -147,20 +174,13 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             // Put thousand separator on the vote count
             String totalVoteCount = String.format("%,d", movieItem.getVoteCount());
             mTotalVote.setText(totalVoteCount + " votes");
-
             setTitle(" ");
             Picasso.with(this).load(movieItem.getImgUrl()).into(mMovieImage);
             Picasso.with(this).load(movieItem.getBackdropImgUrl()).into(mBannerImage);
-        } else {
-            Log.d("Intent description", "onCreate: No Intent found");
-        }
     }
 
     public void onFaveButtonClick(View view) {
-        Log.e("Error on click", "onFaveButtonClick: Error in content values");
-
-        if (null != movieItem && mMovieData != null) {
-            Log.e("Error on data check", "onFaveButtonClick: Error in content values");
+        if (null != movieItem) {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, movieItem.getMovieID());
             contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieItem.getMovieTitle());
@@ -174,7 +194,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
 
             if ( uri != null ){
-                Toast.makeText(getBaseContext(), "Movie has been added to your favourite list", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Movie has been added to your favourite list" + uri.toString(), Toast.LENGTH_LONG).show();
                 mFloatingButton.setImageResource(R.drawable.checked);
             } else {
                 Toast.makeText(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
@@ -263,6 +283,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             public Cursor loadInBackground() {
                 try {
                     if (null != movieId) {
+                        Log.v("Tracking URI Request", "Loader Tracking : " + MovieContract.MovieEntry.contentItemUri(movieId));
                         return getContentResolver().query(MovieContract.MovieEntry.contentItemUri(movieId), null, null, null, null);
                     } else {
                         return null;
@@ -276,19 +297,23 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
 
             @Override
             public void deliverResult(Cursor data) {
-                mMovieData = data;
                 super.deliverResult(data);
+                mMovieData = data;
             }
         };
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(MOVIE_ITEM, movieItem);
+    }
+
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if (null != mMovieData) {
-            mMovieData = data;
-            mFloatingButton.setImageResource(R.drawable.checked);
-        }
+        mMovieData = data;
+        checkFaveMovie();
 
     }
 

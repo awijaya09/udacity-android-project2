@@ -3,6 +3,7 @@ package com.twiscode.movie_stage1;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     private ArrayList<MovieItem> movies;
     private Cursor mCursor;
+    private MovieItem movieItem;
 
     //Add On click listener
     final private MovieAdapterOnClickHandler mClickHandler;
@@ -48,7 +50,11 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @Override
         public void onClick(View view) {
-            MovieItem movieItem = movies.get(getAdapterPosition());
+            if (mCursor != null) {
+                movieItem = getDataFromCursor(getAdapterPosition());
+            } else {
+                movieItem = movies.get(getAdapterPosition());
+            }
             mClickHandler.onItemClick(movieItem);
         }
     }
@@ -68,8 +74,10 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     public void onBindViewHolder(MovieListViewHolder holder, int position) {
         MovieItem movieSingle = null;
         if (null != mCursor) {
+            Log.d("Cursor", "onBindViewHolder: cursor called");
             movieSingle = getDataFromCursor(position);
         } else {
+            Log.d("Cursor", "onBindViewHolder: movies called");
             movieSingle = movies.get(position);
         }
 
@@ -110,13 +118,24 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public int getItemCount() {
-        if (null == movies) return 0;
-        return movies.size();
+        if (mCursor != null) {
+            return mCursor.getCount();
+        } else if (movies != null){
+            return movies.size();
+        } else {
+            return 0;
+        }
+
     }
 
     public void setMovieData(ArrayList<MovieItem> movieItems, Cursor cursor){
         movies = movieItems;
         mCursor = cursor;
+        notifyDataSetChanged();
+    }
+
+    public void addMovieData(ArrayList<MovieItem> newMovieItems) {
+        movies.addAll(newMovieItems);
         notifyDataSetChanged();
     }
 

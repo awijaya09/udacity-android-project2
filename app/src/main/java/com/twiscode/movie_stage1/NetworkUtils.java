@@ -1,6 +1,7 @@
 package com.twiscode.movie_stage1;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
@@ -20,27 +21,33 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import butterknife.BindString;
+import butterknife.BindView;
+
 /**
  * Created by Andree on 7/9/17.
  */
 
 public class NetworkUtils {
 
+
+
     final static String MOVIEDB_POPULAR_URL = "https://api.themoviedb.org/3/movie/popular?api_key=";
     final static String MOVIEDB_TOPRATED_URL = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
     final static String MOVIEDB_UPCOMING_URL = "https://api.themoviedb.org/3/movie/upcoming?api_key=";
     final static String MOVIEDB_QUERY_PAGE = "&page=";
-    final static String API_KEY = "Enter your API Key Here";
+    final static String MOVIEDB_API_KEY = "<Enter moviedb api key here>";
     final static String IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
     // Video/Trailer link
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
-    final static String YOUTUBE_API_KEY = "Enter your Youtube API Key Here";
+    final static String YOUTUBE_API_KEY = "";
 
     final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String MOVIEDB_VIDEOS_API = "/videos?api_key=";
     final static String MOVIEDB_REVIEWS_API = "/reviews?api_key=";
     final static String MOVIEDB_VIDEOS_LANG = "&language=en-US";
+
 
 
     public static URL buildUrl(String firstUrl, String apiKey, int pageNumber){
@@ -58,7 +65,7 @@ public class NetworkUtils {
     }
 
     public static URL buildVideoRequestUrl(String apiRequestType, String movieID){
-        String completeUrl = MOVIEDB_BASE_URL + movieID + apiRequestType + API_KEY + MOVIEDB_VIDEOS_LANG;
+        String completeUrl = MOVIEDB_BASE_URL + movieID + apiRequestType + MOVIEDB_API_KEY + MOVIEDB_VIDEOS_LANG;
         Uri builtUri = Uri.parse(completeUrl).buildUpon().build();
 
         URL url = null;
