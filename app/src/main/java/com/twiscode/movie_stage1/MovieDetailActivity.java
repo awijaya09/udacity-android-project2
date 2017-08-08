@@ -73,6 +73,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     private Cursor mMovieData;
     private static final int TASK_LOADER_ID = 0;
     private static final String MOVIE_ITEM = "movieItem";
+    private static final String SAVED_STATUS = "savedStatus";
     private static Boolean saved = false;
 
 
@@ -90,6 +91,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
 
         if (null != savedInstanceState) {
             movieItem = savedInstanceState.getParcelable(MOVIE_ITEM);
+            saved = savedInstanceState.getBoolean(SAVED_STATUS);
         }
         //get the movie item object from intent
         setUpContent();
@@ -335,6 +337,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(MOVIE_ITEM, movieItem);
+        outState.putBoolean(SAVED_STATUS, saved);
     }
 
     @Override
