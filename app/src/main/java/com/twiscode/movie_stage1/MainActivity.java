@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.facebook.stetho.Stetho;
 import com.twiscode.movie_stage1.Model.MovieContract;
 import com.twiscode.movie_stage1.Model.MovieItem;
 
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Stetho.initializeWithDefaults(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setUpRecyclerViews();
@@ -73,9 +75,8 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             loadMoviesData(pageID);
         }
 
-
-
     }
+
 
     private void setUpRecyclerViews() {
 
@@ -287,11 +288,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             @Override
             protected void onStartLoading() {
                 showLoading();
-                if (mMovieData != null) {
-                    deliverResult(mMovieData);
-                } else {
+//                if (mMovieData != null) {
+//                    deliverResult(mMovieData);
+//                } else {
+//                    forceLoad();
+//                }
                     forceLoad();
-                }
             }
 
             @Override
@@ -320,14 +322,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
-        if (null != data) {
-            mMovieData = data;
-            adapter.swapCursor(data);
-
-        }
-        mRefreshLayout.setRefreshing(false);
-        showAllMovies();
+        loader.reset();
 
     }
 

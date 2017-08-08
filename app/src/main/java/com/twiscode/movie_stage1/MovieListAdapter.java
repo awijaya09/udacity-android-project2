@@ -149,6 +149,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         //check if this is a valid cursor, then update the cursor
         if (c != null) {
+            movies = null;
             this.notifyDataSetChanged();
         }
         return temp;

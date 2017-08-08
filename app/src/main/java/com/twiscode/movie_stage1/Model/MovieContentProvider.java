@@ -84,10 +84,10 @@ public class MovieContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown URI: " + uri);
         }
 
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
-        int titleIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE);
-        String movieTitle = cursor.getString(titleIndex);
-        Log.d("Query item", "query: " + movieTitle);
+        if (null != cursor) {
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+        Log.d("Query item", "query: " + cursor.getCount());
         return cursor;
     }
 
@@ -120,14 +120,16 @@ public class MovieContentProvider extends ContentProvider {
                 if (id > 0){
                     returnUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, id);
                 } else {
-                    throw new SQLException("Failed to insert row" + uri);
+                    throw new SQLException("Failed to insert row " + uri);
                 }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown URI: " + uri);
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (null != returnUri){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
 
         return returnUri;
     }
@@ -162,9 +164,9 @@ public class MovieContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown URI: " + uri);
         }
 
-        if (delCounter != 0 ) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
 
         return delCounter;
     }

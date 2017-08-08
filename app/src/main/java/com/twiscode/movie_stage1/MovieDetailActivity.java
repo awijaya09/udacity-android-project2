@@ -3,6 +3,7 @@ package com.twiscode.movie_stage1;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -72,6 +73,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     private Cursor mMovieData;
     private static final int TASK_LOADER_ID = 0;
     private static final String MOVIE_ITEM = "movieItem";
+    private static Boolean saved = false;
 
 
     @Override
@@ -111,6 +113,9 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
         mRecyclerViewReviews.setAdapter(mReviewListAdapter);
 
 
+
+        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
+
         mFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,16 +129,14 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     protected void onStart() {
         super.onStart();
         Log.d("Activity Track", "onStart: activity called");
-        getSupportLoaderManager().initLoader(TASK_LOADER_ID, null, this);
         loadVideosReviews();
-        checkFaveMovie();
     }
 
     private void checkFaveMovie() {
         // 1. Check if movie is saved in SQLite
         // 2. If exists, make the button checked
         // 3. Else make it add button
-        if (mMovieData == null) {
+        if (!saved) {
             Log.d("Activity Track", "onStart: movie data null");
             mFloatingButton.setImageResource(R.drawable.ic_action_add);
         } else {
@@ -180,26 +183,49 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     }
 
     public void onFaveButtonClick(View view) {
-        if (null != movieItem) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, movieItem.getMovieID());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieItem.getMovieTitle());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movieItem.getMovieDescription());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieItem.getReleaseDate());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_IMG_URL, movieItem.getImgUrl());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_URL, movieItem.getBackdropImgUrl());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RATING, movieItem.getMovieRating());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, movieItem.getVoteCount());
 
-            Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-
-            if ( uri != null ){
-                Toast.makeText(getBaseContext(), "Movie has been added to your favourite list" + uri.toString(), Toast.LENGTH_LONG).show();
-                mFloatingButton.setImageResource(R.drawable.checked);
+        if (saved) {
+            int counter = 0;
+            try {
+                counter = getContentResolver().delete(MovieContract.MovieEntry.contentItemUri(movieId),null, null);
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+            if (counter != 0){
+                Toast.makeText(getBaseContext(), "Movie has been removed from your favourite list", Toast.LENGTH_LONG).show();
+                saved = false;
+                mFloatingButton.setImageResource(R.drawable.ic_action_add);
             } else {
-                Toast.makeText(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Failed to remove movie", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            if (null != movieItem) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIEDB_ID, movieItem.getMovieID());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieItem.getMovieTitle());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, movieItem.getMovieDescription());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieItem.getReleaseDate());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_IMG_URL, movieItem.getImgUrl());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_URL, movieItem.getBackdropImgUrl());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RATING, movieItem.getMovieRating());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, movieItem.getVoteCount());
+
+                Uri uri = null;
+                try {
+                    uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                if ( null != uri ){
+                    Toast.makeText(getBaseContext(), "Movie has been added to your favourite list" + uri.toString(), Toast.LENGTH_LONG).show();
+                    saved = true;
+                    mFloatingButton.setImageResource(R.drawable.checked);
+                } else {
+                    Toast.makeText(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
+                }
             }
         }
+
     }
 
     private void showVideoLoading() {
@@ -272,11 +298,12 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
 
             @Override
             protected void onStartLoading() {
-                if (mMovieData != null) {
-                    deliverResult(mMovieData);
-                } else {
-                    forceLoad();
-                }
+//                if (mMovieData != null) {
+//                    deliverResult(mMovieData);
+//                } else {
+//                    forceLoad();
+//                }
+                forceLoad();
             }
 
             @Override
@@ -299,6 +326,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             public void deliverResult(Cursor data) {
                 super.deliverResult(data);
                 mMovieData = data;
+                checkFaveMovie();
             }
         };
     }
@@ -312,8 +340,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        mMovieData = data;
-        checkFaveMovie();
+        loader.reset();
 
     }
 
