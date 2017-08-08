@@ -1,12 +1,18 @@
 package com.twiscode.movie_stage1.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
+
+import static android.R.attr.id;
+import static android.R.attr.rating;
 
 /**
  * Created by Andree on 7/7/17.
  */
 
-public class MovieItem implements Serializable {
+public class MovieItem implements Parcelable {
 
     private String imgUrl;
     private String backdropImgUrl;
@@ -28,6 +34,49 @@ public class MovieItem implements Serializable {
         this.voteCount = voteCount;
 
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(imgUrl);
+        parcel.writeString(backdropImgUrl);
+        parcel.writeString(movieTitle);
+        parcel.writeDouble(movieRating);
+        parcel.writeString(movieDescription);
+        parcel.writeString(releaseDate);
+        parcel.writeInt(voteCount);
+        parcel.writeInt(movieID);
+    }
+
+    private MovieItem (Parcel in) {
+        this.imgUrl = in.readString();
+        this.backdropImgUrl = in.readString();
+        this.movieTitle = in.readString();
+        this.movieRating = in.readDouble();
+        this.movieDescription = in.readString();
+        this.releaseDate = in.readString();
+        this.voteCount = in.readInt();
+        this.movieID = in.readInt();
+    }
+
+    public static final Parcelable.Creator<MovieItem> CREATOR = new Parcelable.Creator<MovieItem>() {
+
+        @Override
+        public MovieItem createFromParcel(Parcel parcel) {
+            return new MovieItem(parcel);
+        }
+
+        @Override
+        public MovieItem[] newArray(int i) {
+            return new MovieItem[i];
+        }
+    };
+
     public int getVoteCount() { return voteCount; }
 
     public void setVoteCount(int voteCount) { this.voteCount = voteCount; }
@@ -82,4 +131,5 @@ public class MovieItem implements Serializable {
     public void setMovieID(int movieID) {
         this.movieID = movieID;
     }
+
 }

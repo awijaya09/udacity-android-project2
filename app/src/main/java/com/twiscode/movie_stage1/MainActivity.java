@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -33,6 +34,7 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<Cursor> {
 
+    private final static String MOVIE_ITEMS_LIST = "movieItems";
     private MovieListAdapter adapter;
     private RecyclerView mRecyclerView;
     private ArrayList<MovieItem> movieLists;
@@ -46,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @BindView(R.id.pb_loading_indicator) ProgressBar mLoadingIndicator;
     @BindView(R.id.tv_error_message) TextView mErrorText;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +66,30 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         adapter = new MovieListAdapter(this);
         mRecyclerView.setAdapter(adapter);
 
+        pageID = 0;
+        addPagination();
+
+        if (null != savedInstanceState) {
+            movieLists = savedInstanceState.getParcelableArrayList(MOVIE_ITEMS_LIST);
+            adapter.setMovieData(movieLists, null);
+
+        } else {
+            loadMoviesData(pageID);
+        }
+
+
+        // Setting refresh layout
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadMoviesData(pageID);
+            }
+        });
+
         RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
         if(animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
-        pageID = 0;
-
-        loadMoviesData(pageID);
-
-        addPagination();
-        setTitle("Upcoming Movies");
-
     }
 
     private void loadMoviesData(int movieType){
@@ -141,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     private void showErrorMessage(){
         mRecyclerView.setVisibility(View.INVISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
         mErrorText.setVisibility(View.VISIBLE);
     }
 
@@ -166,9 +184,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (currentPage == 1){
+
                 showLoading();
-            }
+
         }
 
         @Override
@@ -194,11 +212,20 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 currentPage += 1;
                 loadingNewItem = true;
                 adapter.setMovieData(movieLists, null);
+                mRefreshLayout.setRefreshing(false);
             } else {
                 showErrorMessage();
+                mRefreshLayout.setRefreshing(false);
             }
 
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(MOVIE_ITEMS_LIST, movieLists);
+
     }
 
     @Override

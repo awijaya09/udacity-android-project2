@@ -134,7 +134,7 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
         Intent intent = getIntent();
 
         if (intent.hasExtra("MovieItem")){
-            movieItem = (MovieItem) intent.getSerializableExtra("MovieItem");
+            movieItem = (MovieItem) intent.getParcelableExtra("MovieItem");
             movieId = Integer.toString(movieItem.getMovieID());
             mMovieDetailTitle.setText(movieItem.getMovieTitle());
             mMovieDetailDesc.setText(movieItem.getMovieDescription());

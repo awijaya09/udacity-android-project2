@@ -1,5 +1,6 @@
 package com.twiscode.movie_stage1;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -29,12 +30,13 @@ public class NetworkUtils {
     final static String MOVIEDB_TOPRATED_URL = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
     final static String MOVIEDB_UPCOMING_URL = "https://api.themoviedb.org/3/movie/upcoming?api_key=";
     final static String MOVIEDB_QUERY_PAGE = "&page=";
-    final static String API_KEY = "< Movie DB API KEY>";
+    final static String API_KEY = "Enter your API Key Here";
     final static String IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
     // Video/Trailer link
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
-    final static String YOUTUBE_API_KEY = "< Youtube API KEY>";
+    final static String YOUTUBE_API_KEY = "Enter your Youtube API Key Here";
+
     final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String MOVIEDB_VIDEOS_API = "/videos?api_key=";
     final static String MOVIEDB_REVIEWS_API = "/reviews?api_key=";
@@ -72,6 +74,8 @@ public class NetworkUtils {
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setConnectTimeout(5000);
+        urlConnection.setReadTimeout(10000);
         try {
             InputStream in = urlConnection.getInputStream();
 
@@ -134,7 +138,6 @@ public class NetworkUtils {
         ArrayList<VideoItem> videoList = new ArrayList<VideoItem>();
         String jsonString = NetworkUtils.getResponseFromHttpUrl(paramUrl);
 
-
         if (null != jsonString) {
             try {
                 JSONObject jsonObject = new JSONObject(jsonString);
@@ -157,6 +160,8 @@ public class NetworkUtils {
                 Log.e("JSON Error", "Json parsing error: " + e.getMessage());
             }
 
+        } else {
+            return null;
         }
         return videoList;
     }
@@ -190,6 +195,8 @@ public class NetworkUtils {
                 Log.e("JSON Error", "Json parsing error: " + e.getMessage());
             }
 
+        } else {
+            return null;
         }
         return reviewList;
     }
