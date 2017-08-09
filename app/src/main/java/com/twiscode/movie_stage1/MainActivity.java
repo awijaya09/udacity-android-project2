@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setUpRecyclerViews();
+
         // Setting the recycler view
 
         movieLists = new ArrayList<MovieItem>();

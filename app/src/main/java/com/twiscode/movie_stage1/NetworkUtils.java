@@ -36,12 +36,12 @@ public class NetworkUtils {
     final static String MOVIEDB_TOPRATED_URL = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
     final static String MOVIEDB_UPCOMING_URL = "https://api.themoviedb.org/3/movie/upcoming?api_key=";
     final static String MOVIEDB_QUERY_PAGE = "&page=";
-    final static String MOVIEDB_API_KEY = "<Enter your MovieDB API>";
+    final static String MOVIEDB_API_KEY = "<Enter your MovieDB API Key>";
     final static String IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
     // Video/Trailer link
     final static String YOUTUBE_BASE_URL = "https://www.youtube.com/watch?v=";
-    final static String YOUTUBE_API_KEY = "";
+    final static String YOUTUBE_API_KEY = "<Enter your Youtube API Key>";
 
     final static String MOVIEDB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String MOVIEDB_VIDEOS_API = "/videos?api_key=";

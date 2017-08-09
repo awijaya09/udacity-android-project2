@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import es.dmoral.toasty.Toasty;
 
 public class MovieDetailActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -194,11 +195,11 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
                 e.printStackTrace();
             }
             if (counter != 0){
-                Toast.makeText(getBaseContext(), "Movie has been removed from your favourite list", Toast.LENGTH_LONG).show();
+                Toasty.warning(getBaseContext(), "Movie has been removed from your favourite list", Toast.LENGTH_LONG).show();
                 saved = false;
                 mFloatingButton.setImageResource(R.drawable.ic_action_add);
             } else {
-                Toast.makeText(getBaseContext(), "Failed to remove movie", Toast.LENGTH_SHORT).show();
+                Toasty.error(getBaseContext(), "Failed to remove movie", Toast.LENGTH_SHORT).show();
             }
         } else {
             if (null != movieItem) {
@@ -219,11 +220,11 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
                     e.printStackTrace();
                 }
                 if ( null != uri ){
-                    Toast.makeText(getBaseContext(), "Movie has been added to your favourite list" + uri.toString(), Toast.LENGTH_LONG).show();
+                    Toasty.success(getBaseContext(), "Movie has been added to your favourite list", Toast.LENGTH_LONG).show();
                     saved = true;
                     mFloatingButton.setImageResource(R.drawable.checked);
                 } else {
-                    Toast.makeText(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
+                    Toasty.success(getBaseContext(), "Failed to add movie", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -300,12 +301,11 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
 
             @Override
             protected void onStartLoading() {
-//                if (mMovieData != null) {
-//                    deliverResult(mMovieData);
-//                } else {
-//                    forceLoad();
-//                }
-                forceLoad();
+                if (mMovieData != null) {
+                    deliverResult(mMovieData);
+                } else {
+                    forceLoad();
+                }
             }
 
             @Override
@@ -328,6 +328,13 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
             public void deliverResult(Cursor data) {
                 super.deliverResult(data);
                 mMovieData = data;
+                if (mMovieData.getCount() != 0){
+                    Log.v("Loader", "Loader Tracking : data not null");
+                    saved = true;
+                } else {
+                    Log.v("Loader", "Loader Tracking : data null");
+                    saved = false;
+                }
                 checkFaveMovie();
             }
         };
@@ -342,13 +349,15 @@ public class MovieDetailActivity extends AppCompatActivity implements LoaderMana
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        Log.v("Loader", "Loader Tracking : onLoadFinished Called");
         loader.reset();
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.v("Loader", "Loader Tracking : onLoaderReset Called");
         mMovieData = null;
+        saved = false;
     }
 }
