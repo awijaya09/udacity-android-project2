@@ -16,6 +16,7 @@ Before running the project, make sure to input your MovieDB API KEY and Youtube 
 ### Frameworks Used
 1. Picasso - Async Image download
 1. ButterKnife - View Injection
+1. Toasty - Toast Message with Steroids
 
 ## Authors
 **Andree Wijaya**
